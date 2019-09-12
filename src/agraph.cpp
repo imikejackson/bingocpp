@@ -24,7 +24,8 @@ int renumber_constants(const std::vector<bool>& utilized_commands,
 std::string get_formatted_string_using(
     const PrintMap& format_map,
     const AGraph& agraph,
-    const Eigen::ArrayX3i& short_command_array);
+    const Eigen::ArrayX3i& command_array,
+    const std::vector<bool>& mask);
 
 std::string get_formatted_element_string(const AGraph& individual,
                                          const Eigen::ArrayX3i& stack_element,
@@ -45,7 +46,7 @@ std::string get_stack_element_string(const AGraph& individual,
 
 AGraph::AGraph(bool manual_constants) {
   command_array_ = Eigen::ArrayX3i(0, 3);
-  short_command_array_ = Eigen::ArrayX3i(0, 3);
+  utilized_commands_ = std::vector<bool>(1, true);
   constants_ = Eigen::VectorXd(0);
   needs_opt_ = false;
   num_constants_ = 0;
@@ -57,7 +58,7 @@ AGraph::AGraph(bool manual_constants) {
   
 AGraph::AGraph(const AGraph& agraph) {
   command_array_ = agraph.command_array_;
-  short_command_array_ = agraph.short_command_array_;
+  utilized_commands_ = agraph.utilized_commands_;
   constants_ = agraph.constants_;
   needs_opt_ = agraph.needs_opt_;
   num_constants_ = agraph.num_constants_;
@@ -201,20 +202,21 @@ std::ostream& operator<<(std::ostream& strm, const AGraph& graph) {
 
 std::string AGraph::GetLatexString() const {
   return get_formatted_string_using(
-      kLatexPrintMap,*this, short_command_array_);
+      kLatexPrintMap, *this, command_array_, utilized_commands_);
 }
 
 std::string AGraph::GetConsoleString() const {
   return get_formatted_string_using(
-      kConsolePrintMap, *this, short_command_array_);
+      kConsolePrintMap, *this, command_array_, utilized_commands_);
 }
 
 std::string AGraph::GetStackString() const {
-  std::stringstream print_str; 
+  std::stringstream print_str;
+  Eigen::ArrayX3i short_command_array = backend::SimplifyStack(command_array_);
   print_str << "---full stack---\n"
             << get_stack_string(*this, command_array_)
             << "---small stack---\n"
-            << get_stack_string(*this, short_command_array_); 
+            << get_stack_string(*this, short_command_array);
   return print_str.str();
 }
 
@@ -244,14 +246,13 @@ bool AGraph::IsTerminal(int node) {
 
 void AGraph::process_modified_command_array() {
   int new_const_number = 0;
+  utilized_commands_ = backend::GetUtilizedCommands(command_array_);
   if (!manual_constants_) {
-    std::vector<bool> util = GetUtilizedCommands();
-    needs_opt_ = check_optimization_requirement(*this, util);
+    needs_opt_ = check_optimization_requirement(*this, utilized_commands_);
     if (needs_opt_)  {
-      new_const_number = renumber_constants(util, command_array_);
+      new_const_number = renumber_constants(utilized_commands_, command_array_);
     }
   }
-  short_command_array_ = backend::SimplifyStack(command_array_);
   num_constants_ = new_const_number;
 }
 
@@ -291,12 +292,17 @@ int renumber_constants (const std::vector<bool>& utilized_commands,
 std::string get_formatted_string_using(
     const PrintMap& format_map,
     const AGraph& agraph,
-    const Eigen::ArrayX3i& short_command_array){
+    const Eigen::ArrayX3i& command_array,
+    const std::vector<bool>& mask){
   std::vector<std::string> string_list;
-  for (auto stack_element : short_command_array.rowwise()) {
-    std::string temp_string = get_formatted_element_string(
-        agraph, stack_element, string_list, format_map);
-    string_list.push_back(temp_string);
+  int command_array_depth = command_array.rows();
+  for (int i = 0; i < command_array_depth; i++) {
+    if (mask[i]) {
+      Eigen::ArrayX3i stack_element = command_array.row(i);
+      std::string temp_string = get_formatted_element_string(
+          agraph, stack_element, string_list, format_map);
+      string_list.push_back(temp_string);
+    }
   }
   return string_list.back();
 }

@@ -67,7 +67,7 @@ Eigen::ArrayXXd SimplifyAndEvaluate(const Eigen::ArrayX3i& stack,
 Eigen::ArrayXXd EvaluateUsingMask(const Eigen::ArrayX3i& stack,
                                  const Eigen::ArrayXXd& x,
                                  const Eigen::VectorXd& constants,
-                                 std::vector<bool> mask) {
+                                 const std::vector<bool>& mask) {
   std::vector<Eigen::ArrayXXd> forward_eval = forward_eval_with_mask(
       stack, x, constants, mask);
   return forward_eval.back();
@@ -96,7 +96,7 @@ EvalAndDerivative EvaluateWithDerivativeUsingMask(
     const Eigen::ArrayXXd& x,
     const Eigen::VectorXd& constants,
     const bool param_x_or_c,
-    std::vector<bool> mask) {
+    const std::vector<bool>& mask) {
   return evaluate_with_derivative_and_mask(stack, x, constants, mask, param_x_or_c);
 }
 

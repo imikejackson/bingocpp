@@ -260,8 +260,8 @@ class AGraph {
 
  private:
   Eigen::ArrayX3i command_array_;
-  Eigen::ArrayX3i short_command_array_;
   Eigen::VectorXd constants_;
+  std::vector<bool> utilized_commands_;
   bool needs_opt_;
   int num_constants_;
   bool manual_constants_;

@@ -148,9 +148,9 @@ EvalAndDerivative SimplifyAndEvaluateWithDerivative(
  * @return Eigen::ArrayXXd The evaluation of the graph with x as the input data.
  */
 Eigen::ArrayXXd EvaluateUsingMask(const Eigen::ArrayX3i& stack,
-                                 const Eigen::ArrayXXd& x,
-                                 const Eigen::VectorXd& constants,
-                                 std::vector<bool> mask);
+                                  const Eigen::ArrayXXd& x,
+                                  const Eigen::VectorXd& constants,
+                                  const std::vector<bool>& mask);
 
 /**
  * @brief Evaluate equation and take derivative.
@@ -177,7 +177,7 @@ EvalAndDerivative EvaluateWithDerivativeUsingMask(
     const Eigen::ArrayXXd& x,
     const Eigen::VectorXd& constants,
     const bool param_x_or_c,
-    std::vector<bool> mask);
+    const std::vector<bool>& mask);
 
 /**
  * @brief Simplifies a stack.
