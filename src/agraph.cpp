@@ -145,9 +145,10 @@ Eigen::ArrayXXd
 AGraph::EvaluateEquationAt(Eigen::ArrayXXd& x) {
   Eigen::ArrayXXd f_of_x; 
   try {
-    f_of_x = backend::Evaluate(this->command_array_,
-                               x,
-                               this->constants_);
+    f_of_x = backend::EvaluateUsingMask(this->command_array_,
+                                        x,
+                                        this->constants_,
+                                        this->utilized_commands_);
     return f_of_x;
   } catch (const std::underflow_error& ue) {
     return Eigen::ArrayXXd::Constant(x.rows(), x.cols(), kNaN);
@@ -160,10 +161,11 @@ EvalAndDerivative
 AGraph::EvaluateEquationWithXGradientAt(Eigen::ArrayXXd& x) {
   EvalAndDerivative df_dx;
   try {
-    df_dx = backend::EvaluateWithDerivative(this->command_array_,
-                                            x,
-                                            this->constants_,
-                                            true);
+    df_dx = backend::EvaluateWithDerivativeUsingMask(this->command_array_,
+                                                     x,
+                                                     this->constants_,
+                                                     true,
+                                                     this->utilized_commands_);
     return df_dx;
   } catch (const std::underflow_error& ue) {
     Eigen::ArrayXXd nan_array =
@@ -180,10 +182,11 @@ EvalAndDerivative
 AGraph::EvaluateEquationWithLocalOptGradientAt(Eigen::ArrayXXd& x) {
   EvalAndDerivative df_dc;
   try {
-    df_dc = backend::EvaluateWithDerivative(this->command_array_,
-                                            x,
-                                            this->constants_,
-                                            false);
+    df_dc = backend::EvaluateWithDerivativeUsingMask(this->command_array_,
+                                                     x,
+                                                     this->constants_,
+                                                     false,
+                                                     this->utilized_commands_);
     return df_dc;
   } catch (const std::underflow_error& ue) {
     Eigen::ArrayXXd nan_array =
