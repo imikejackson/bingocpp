@@ -130,6 +130,56 @@ EvalAndDerivative SimplifyAndEvaluateWithDerivative(
     const bool param_x_or_c = true);
 
 /**
+ * @brief Evauluate the equation.
+ *
+ * Evauluate the equation associated with an Agraph, at the values x.
+ * Only the commands signified in the mask are considered.
+ *
+ * @param stack Nx3 array. The command stack associated with an equation.
+ * N is the number of commands in the stack.
+ *
+ * @param x MxD Array. Values at which to evaluate the equations. D is the
+ * dimension in x and M is the number of data points in x.
+ *
+ * @param constants Vector of doubles. Constants that are used in the equation.
+ *
+ * @param mask vector describing which commands in the stack are evaluated
+ *
+ * @return Eigen::ArrayXXd The evaluation of the graph with x as the input data.
+ */
+Eigen::ArrayXXd EvaluateUsingMask(const Eigen::ArrayX3i& stack,
+                                 const Eigen::ArrayXXd& x,
+                                 const Eigen::VectorXd& constants,
+                                 std::vector<bool> mask);
+
+/**
+ * @brief Evaluate equation and take derivative.
+ *
+ * Evaluate the derivatives of the equation associated with an Agraph,
+ * at the values x.  Only the commands signified by the mask are considered.
+ *
+ * @param stack Nx3 array. The command stack associated with an equation.
+ * N is the number of commands in the stack.
+ *
+ * @param x MxD Array. Values at which to evaluate the equations. D is the
+ * dimension in x and M is the number of data points in x.
+ *
+ * @param constants Vector of doubles. Constants that are used in the equation.
+ *
+ * @param param_x_or_c true: x derivative, false: c derivative
+ *
+ * @param mask vector describing which commands in the stack are evaluated
+ *
+ * @return EvalAndDerivative Derivatives of all dimensions of x/constants at location x.
+ */
+EvalAndDerivative EvaluateWithDerivativeUsingMask(
+    const Eigen::ArrayX3i& stack,
+    const Eigen::ArrayXXd& x,
+    const Eigen::VectorXd& constants,
+    const bool param_x_or_c,
+    std::vector<bool> mask);
+
+/**
  * @brief Simplifies a stack.
  *
  * An acyclic graph is given in stack form.  The stack is first simplified to

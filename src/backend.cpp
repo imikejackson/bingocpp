@@ -55,15 +55,6 @@ Eigen::ArrayXXd Evaluate(const Eigen::ArrayX3i& stack,
   return _forward_eval.back();  
 }
 
-std::pair<Eigen::ArrayXXd, Eigen::ArrayXXd> EvaluateWithDerivative(
-    const Eigen::ArrayX3i& stack,
-    const Eigen::ArrayXXd& x,
-    const Eigen::VectorXd& constants,
-    const bool param_x_or_c) {
-  return evaluate_with_derivative(
-    stack, x, constants, param_x_or_c);
-}
-
 Eigen::ArrayXXd SimplifyAndEvaluate(const Eigen::ArrayX3i& stack,
                                     const Eigen::ArrayXXd& x,
                                     const Eigen::VectorXd& constants) {
@@ -73,12 +64,39 @@ Eigen::ArrayXXd SimplifyAndEvaluate(const Eigen::ArrayX3i& stack,
   return forward_eval.back();
 }
 
+Eigen::ArrayXXd EvaluateUsingMask(const Eigen::ArrayX3i& stack,
+                                 const Eigen::ArrayXXd& x,
+                                 const Eigen::VectorXd& constants,
+                                 std::vector<bool> mask) {
+  std::vector<Eigen::ArrayXXd> forward_eval = forward_eval_with_mask(
+      stack, x, constants, mask);
+  return forward_eval.back();
+}
+
+std::pair<Eigen::ArrayXXd, Eigen::ArrayXXd> EvaluateWithDerivative(
+    const Eigen::ArrayX3i& stack,
+    const Eigen::ArrayXXd& x,
+    const Eigen::VectorXd& constants,
+    const bool param_x_or_c) {
+  return evaluate_with_derivative(
+    stack, x, constants, param_x_or_c);
+}
+
 EvalAndDerivative SimplifyAndEvaluateWithDerivative(
     const Eigen::ArrayX3i& stack,
     const Eigen::ArrayXXd& x,
     const Eigen::VectorXd& constants,
     const bool param_x_or_c) {
   std::vector<bool> mask = GetUtilizedCommands(stack);
+  return evaluate_with_derivative_and_mask(stack, x, constants, mask, param_x_or_c);
+}
+
+EvalAndDerivative EvaluateWithDerivativeUsingMask(
+    const Eigen::ArrayX3i& stack,
+    const Eigen::ArrayXXd& x,
+    const Eigen::VectorXd& constants,
+    const bool param_x_or_c,
+    std::vector<bool> mask) {
   return evaluate_with_derivative_and_mask(stack, x, constants, mask, param_x_or_c);
 }
 
